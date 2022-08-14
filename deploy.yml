@@ -1,0 +1,56 @@
+- hosts: all
+  become: true
+  tasks:
+  - name: Gather package facts
+    package_facts:
+      manager: auto
+
+  - name: apt update
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    when: '"docker" not in ansible_facts.packages'
+
+  - name: Install docker
+    apt:
+      name: ['docker', 'docker.io', 'docker-compose']
+      state: latest
+    when: '"docker" not in ansible_facts.packages'
+
+  - name: Add user {{ ansible_user }} to group docker
+    user: 
+      name={{ ansible_user }}
+      groups=docker
+      append=yes
+    when: '"docker" not in ansible_facts.packages'
+
+  - name: apt update
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    when: '"python3-pip" not in ansible_facts.packages'
+
+  - name: Install pip
+    apt:
+      name: ['python3-pip']
+      state: latest
+    when: '"python3-pip" not in ansible_facts.packages'
+
+  - name: Install docker python package
+    ansible.builtin.pip:
+      name: docker
+
+  - name: Pull an image
+    community.docker.docker_image:
+      name: "{{ lookup('ansible.builtin.env', 'DOCKERHUB_USERNAME') }}/insult-bot:latest"
+      source: pull
+      force_source: yes  # pull updated image with same tag
+
+  - name: Restart a container
+    community.docker.docker_container:
+      name: insult-bot
+      image: jenneron/insult-bot
+      state: started
+      restart: yes
+      env:
+        DISCORD_TOKEN: "{{ lookup('ansible.builtin.env', 'DISCORD_TOKEN') }}"
