@@ -1,0 +1,38 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches:
+      - ci
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DISCORD_TOKEN: ${{ secrets.TOKEN }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/insult-bot:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+    - name: Clone
+      uses: actions/checkout@v1
+    - name: Run playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        playbook: deploy.yml
+        key: ${{secrets.SERVER_KEY}}
+        inventory: host ansible_host=${{secrets.SERVER_IP}} ansible_user=${{secrets.SERVER_USER}}
