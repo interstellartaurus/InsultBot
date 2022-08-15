@@ -4,6 +4,6 @@ RUN pip install --prefix=/install -r requirements.txt
 
 FROM python:alpine as production
 COPY --from=build /install /usr/local
-COPY . /usr/src/bot
+COPY src /usr/src/bot
 WORKDIR /usr/src/bot
 CMD python InsultBot.py
