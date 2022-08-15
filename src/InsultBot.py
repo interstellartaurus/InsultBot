@@ -2,7 +2,7 @@ import os
 
 import discord
 from dotenv import load_dotenv
-from random_insult_reader import biggie_string
+import random_insult_reader
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -19,6 +19,6 @@ async def on_message(message):
         return
 
     if message.content.startswith('Hello'):
-        await message.channel.send(biggie_string)
+        await message.channel.send(random_insult_reader)
 
 client.run(TOKEN)
