@@ -19,6 +19,6 @@ async def on_message(message):
         return
 
     if message.content.startswith('Hello'):
-        await message.channel.send(random_insult_reader)
+        await message.channel.send(random_insult_reader.biggie_string)
 
 client.run(TOKEN)
