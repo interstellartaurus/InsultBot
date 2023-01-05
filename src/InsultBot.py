@@ -9,6 +9,8 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 client = discord.Client()
 intents = discord.Intents(messages=True, guilds=True)
+
+
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
